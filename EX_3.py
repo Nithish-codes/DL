@@ -6,25 +6,14 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 
 
-# ==========================================================
-# Load Dataset
-# ==========================================================
 data = load_breast_cancer()
 
 X = data.data
 y = data.target.reshape(-1, 1)
 
-
-# ==========================================================
-# Normalize the Features
-# ==========================================================
 scaler = StandardScaler()
 X = scaler.fit_transform(X)
 
-
-# ==========================================================
-# Split into Training and Testing Sets
-# ==========================================================
 X_train, X_test, y_train, y_test = train_test_split(
     X,
     y,
@@ -32,10 +21,6 @@ X_train, X_test, y_train, y_test = train_test_split(
     random_state=1
 )
 
-
-# ==========================================================
-# Initialize Network Parameters
-# ==========================================================
 input_dim = X.shape[1]
 hidden_dim = 10
 output_dim = 1
@@ -46,10 +31,6 @@ b1 = np.zeros((1, hidden_dim))
 W2 = np.random.randn(hidden_dim, output_dim)
 b2 = np.zeros((1, output_dim))
 
-
-# ==========================================================
-# Activation Functions
-# ==========================================================
 def sigmoid(z):
     return 1 / (1 + np.exp(-z))
 
@@ -57,43 +38,24 @@ def sigmoid(z):
 def tanh_derivative(a):
     return 1 - np.power(a, 2)
 
-
-# ==========================================================
-# Training Parameters
-# ==========================================================
 epochs = 1000
 learning_rate = 0.01
 
 losses = []
 
-
-# ==========================================================
-# Training Loop
-# ==========================================================
 for epoch in range(epochs):
 
-    # --------------------------
-    # Forward Propagation
-    # --------------------------
     Z1 = np.dot(X_train, W1) + b1
     A1 = np.tanh(Z1)
 
     Z2 = np.dot(A1, W2) + b2
     A2 = sigmoid(Z2)
-
-    # --------------------------
-    # Binary Cross-Entropy Loss
-    # --------------------------
     loss = -np.mean(
         y_train * np.log(A2 + 1e-9)
         + (1 - y_train) * np.log(1 - A2 + 1e-9)
     )
 
     losses.append(loss)
-
-    # --------------------------
-    # Backward Propagation
-    # --------------------------
     dZ2 = A2 - y_train
     dW2 = np.dot(A1.T, dZ2)
     db2 = np.sum(dZ2, axis=0, keepdims=True)
@@ -104,23 +66,17 @@ for epoch in range(epochs):
     dW1 = np.dot(X_train.T, dZ1)
     db1 = np.sum(dZ1, axis=0, keepdims=True)
 
-    # --------------------------
-    # Update Parameters
-    # --------------------------
     W1 -= learning_rate * dW1
     b1 -= learning_rate * db1
 
     W2 -= learning_rate * dW2
     b2 -= learning_rate * db2
 
-    # Display Loss Every 100 Epochs
+
     if epoch % 100 == 0:
         print(f"Epoch {epoch:4d} | Loss: {loss:.4f}")
 
 
-# ==========================================================
-# Model Evaluation
-# ==========================================================
 Z1_test = np.dot(X_test, W1) + b1
 A1_test = np.tanh(Z1_test)
 
@@ -135,10 +91,6 @@ print("\n" + "=" * 40)
 print(f"Test Accuracy : {accuracy:.2f}%")
 print("=" * 40)
 
-
-# ==========================================================
-# Plot Training Loss
-# ==========================================================
 plt.figure(figsize=(8, 5))
 plt.plot(losses, color="blue", linewidth=2)
 

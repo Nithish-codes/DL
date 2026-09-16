@@ -3,13 +3,8 @@ from sklearn.datasets import load_breast_cancer
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import train_test_split
 
-
-# ==========================================================
-# Load Dataset
-# ==========================================================
 X, y = load_breast_cancer(return_X_y=True)
 
-# Split dataset into training and testing sets
 X_train, X_test, y_train, y_test = train_test_split(
     X,
     y,
@@ -17,19 +12,12 @@ X_train, X_test, y_train, y_test = train_test_split(
     random_state=42
 )
 
-# ==========================================================
-# Normalize the Data (Standardization)
-# ==========================================================
 train_mean = np.mean(X_train, axis=0)
 train_std = np.std(X_train, axis=0) + 1e-8
 
 X_train = (X_train - train_mean) / train_std
 X_test = (X_test - train_mean) / train_std
 
-
-# ==========================================================
-# Logistic Regression Model (From Scratch)
-# ==========================================================
 class LogisticRegressionModel:
 
     def __init__(self, learning_rate=0.01, num_iterations=1000):
@@ -38,55 +26,42 @@ class LogisticRegressionModel:
         self.weights = None
         self.bias = None
 
-    # Sigmoid activation function
+    
     def _sigmoid(self, z):
         return 1 / (1 + np.exp(-z))
 
-    # Train the model
+    
     def fit(self, X, y):
         n_samples, n_features = X.shape
 
-        # Initialize weights and bias
+        
         self.weights = np.zeros(n_features)
         self.bias = 0
 
-        # Gradient Descent
+        
         for iteration in range(self.num_iterations):
 
-            # -------------------------------
-            # Forward Propagation
-            # -------------------------------
             linear_model = np.dot(X, self.weights) + self.bias
             y_predicted = self._sigmoid(linear_model)
 
-            # -------------------------------
-            # Binary Cross-Entropy Loss
-            # -------------------------------
             cost = -np.mean(
                 y * np.log(y_predicted + 1e-8)
                 + (1 - y) * np.log(1 - y_predicted + 1e-8)
             )
 
-            # -------------------------------
-            # Backward Propagation
-            # -------------------------------
             dw = (1 / n_samples) * np.dot(X.T, (y_predicted - y))
             db = (1 / n_samples) * np.sum(y_predicted - y)
 
-            # -------------------------------
-            # Update Parameters
-            # -------------------------------
             self.weights -= self.learning_rate * dw
             self.bias -= self.learning_rate * db
 
-            # Print loss every 100 iterations
             if (iteration + 1) % 100 == 0:
                 print(
                     f"Iteration {iteration + 1}/{self.num_iterations}"
                     f" | Cost: {cost:.4f}"
                 )
 
-    # Predict class labels
+    
     def predict(self, X):
         linear_model = np.dot(X, self.weights) + self.bias
         probabilities = self._sigmoid(linear_model)
@@ -99,9 +74,6 @@ class LogisticRegressionModel:
         return np.array(predictions)
 
 
-# ==========================================================
-# Train the Model
-# ==========================================================
 lr_model = LogisticRegressionModel(
     learning_rate=0.001,
     num_iterations=5000
@@ -109,10 +81,6 @@ lr_model = LogisticRegressionModel(
 
 lr_model.fit(X_train, y_train)
 
-
-# ==========================================================
-# Test the Model
-# ==========================================================
 y_pred = lr_model.predict(X_test)
 
 accuracy = accuracy_score(y_test, y_pred)
